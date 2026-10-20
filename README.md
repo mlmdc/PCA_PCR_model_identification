@@ -1,81 +1,89 @@
 # PCA / PCR model identification | Identification de modèles par ACP / PCR
 
-**EN** — Compare least-squares and PCA-based regression methods on a small process dataset, with a focus on scaling, prediction errors and correlated inputs.
+**EN** — This MATLAB study estimates the process output `I_EFF` from 21 observations of three inputs (`A_FLOW`, `T_H2O` and `C_ACID`). It compares ordinary least-squares regression with regressions using principal components, and explores how input scaling and collinearity affect fitted values and coefficients.
 
-**FR** — Comparer les méthodes de régression par moindres carrés et par ACP sur un petit jeu de données de procédé, en étudiant l’effet de la mise à l’échelle, les erreurs de prédiction et les variables corrélées.
+**FR** — Cette étude MATLAB estime la sortie du procédé `I_EFF` à partir de 21 observations de trois variables (`A_FLOW`, `T_H2O` et `C_ACID`). Elle compare la régression par moindres carrés à des régressions utilisant des composantes principales et examine l’effet de la mise à l’échelle et de la colinéarité sur les ajustements et les coefficients.
 
 [← Back to portfolio](https://github.com/mlmdc) · [Contents / Sommaire](#contents--sommaire)
 
-![Least-squares and PCA model predictions on the standardized dataset](medias/LSE_PCA_err_std.png)
+![Prediction errors for least-squares and PCA-based regression with standardized inputs](medias/LSE_PCA_err_std.png)
 
 ## Contents / Sommaire
 
 - [Overview / Présentation](#overview--présentation)
-- [Problem & approach / Problématique et approche](#problem--approach--problématique-et-approche)
+- [Problem and methods / Problématique et méthodes](#problem-and-methods--problématique-et-méthodes)
 - [Technical decisions / Choix techniques](#technical-decisions--choix-techniques)
-- [Results & learnings / Résultats et apprentissages](#results--learnings--résultats-et-apprentissages)
-- [Getting started](#getting-started)
+- [Results and limitations / Résultats et limites](#results-and-limitations--résultats-et-limites)
+- [Getting started / Démarrage](#getting-started--démarrage)
+- [Repository structure / Structure du dépôt](#repository-structure--structure-du-dépôt)
 
 ## Overview / Présentation
 
-**EN** — This MATLAB project estimates the process output `I_EFF` from three inputs: `A_FLOW`, `T_H2O` and `C_ACID`. It is intended for students and practitioners exploring linear model identification, least-squares estimation, principal component analysis (PCA) and principal component regression (PCR). The scripts compare model fits across input scaling methods and examine coefficient behavior when predictors are strongly correlated.
+**EN** — The project is an exploratory comparison of linear model identification methods on the dataset in `VAJA3.mat`. Its inputs are `A_FLOW`, `T_H2O` and `C_ACID`; the response to estimate is `I_EFF`. The small dataset and the experiments make the effects of scaling and correlated predictors visible, but do not support broad claims about predictive performance.
 
-**FR** — Ce projet MATLAB estime la sortie du procédé `I_EFF` à partir de trois variables d’entrée : `A_FLOW`, `T_H2O` et `C_ACID`. Il s’adresse aux étudiants et praticiens qui étudient l’identification de modèles linéaires, les moindres carrés, l’analyse en composantes principales (ACP) et la régression sur composantes principales (PCR). Les scripts comparent les ajustements selon plusieurs méthodes de mise à l’échelle et examinent la stabilité des coefficients lorsque des variables sont fortement corrélées.
+**FR** — Le projet compare, à titre exploratoire, des méthodes d’identification de modèles linéaires sur les données de `VAJA3.mat`. Les entrées sont `A_FLOW`, `T_H2O` et `C_ACID`, et la sortie à estimer est `I_EFF`. La petite taille du jeu de données et les expériences permettent d’observer l’effet de l’échelle et des variables corrélées, mais ne suffisent pas à établir des conclusions générales sur les performances prédictives.
 
-### Features / Fonctionnalités
+## Problem and methods / Problématique et méthodes
 
-| EN | FR |
-| --- | --- |
-| Compare least-squares estimation (LSE) with PCA-based regression and PCR. | Comparaison des moindres carrés (LSE), d’une régression fondée sur l’ACP et de la PCR. |
-| Evaluate unscaled, min–max scaled and z-score inputs. | Évaluation des données brutes, normalisées entre 0 et 1 et standardisées par score-z. |
-| Generate plots for model fits, errors and coefficient evolution under collinearity. | Génération de graphiques sur les ajustements, les erreurs et l’évolution des coefficients en présence de colinéarité. |
-| Run a 7-fold cross-validation experiment on the 21 observations in the dataset. | Exécution d’une validation croisée en 7 plis sur les 21 observations du jeu de données. |
+**EN** — The script models the response as a linear combination of the three inputs and a constant term. Least squares estimates all coefficients from the original predictors. The PCA-based regression first centers the predictors, projects them onto principal-component directions, retains enough directions to reach at least 95% cumulative explained variance, and estimates the response from those retained scores. PCR (principal component regression) uses the same projection-and-regression principle; in this repository it is called explicitly in the collinearity experiment, while the scaling and cross-validation comparisons call the `PCA` routine.
 
-## Problem & approach / Problématique et approche
+The main script compares raw inputs, min–max scaling to `[0, 1]`, and z-score scaling. It also contains a 7-fold cross-validation loop. A separate experiment adds a noisy predictor derived from `T_H2O` to create strong collinearity, then repeatedly refits LSE and PCR models to inspect coefficient changes.
 
-**EN** — With only 21 observations, the project examines how input scaling and collinearity affect a linear model’s predictions and parameter estimates. It implements least-squares and PCA/PCR workflows, selects principal components using a 95% cumulative explained-variance threshold, and compares the resulting fits and errors.
+**FR** — Le script représente la sortie comme une combinaison linéaire des trois entrées et d’une constante. Les moindres carrés estiment tous les coefficients à partir des variables d’origine. La régression fondée sur l’ACP centre d’abord les entrées, les projette sur les directions principales, conserve suffisamment de directions pour atteindre au moins 95 % de variance cumulée expliquée, puis estime la sortie à partir des scores retenus. La PCR (régression sur composantes principales) repose sur le même principe de projection et de régression ; dans ce dépôt, elle est appelée explicitement pour l’expérience de colinéarité, tandis que les comparaisons de mise à l’échelle et de validation croisée utilisent la fonction `PCA`.
 
-**FR** — Avec seulement 21 observations, le projet étudie l’influence de la mise à l’échelle et de la colinéarité sur les prédictions et les paramètres d’un modèle linéaire. Il met en œuvre les moindres carrés et des approches ACP/PCR, sélectionne les composantes jusqu’à 95 % de variance cumulée expliquée, puis compare les ajustements et les erreurs obtenus.
+Le script principal compare les données brutes, une mise à l’échelle min–max dans `[0, 1]` et une standardisation par score-z. Il contient également une boucle de validation croisée en 7 plis. Une autre expérience ajoute une variable bruitée dérivée de `T_H2O` afin de créer une forte colinéarité, puis réestime plusieurs fois les modèles LSE et PCR pour observer l’évolution des coefficients.
 
 ## Technical decisions / Choix techniques
 
-**EN** — MATLAB is used for matrix-based numerical work and plotting; the dataset is included as a `.mat` file. The script compares min–max scaling and z-scores because PCA is scale-sensitive, and uses a 95% variance threshold to choose components. A small synthetic perturbation of a predictor is used to explore collinearity; no random seed is set, so that experiment can vary between runs.
+**EN** — The PCA implementation centers its input but does not scale it internally. The three input representations are therefore compared because PCA directions depend on feature scale. LSE includes a constant column in its design matrix; the PCA routine centers that column to zero and does not estimate a separate intercept. This difference is relevant when interpreting comparisons between the methods.
 
-**FR** — MATLAB est utilisé pour les calculs matriciels et les graphiques ; le jeu de données est fourni au format `.mat`. Les normalisations min–max et par score-z sont comparées, car l’ACP dépend de l’échelle des variables ; un seuil de 95 % de variance détermine le nombre de composantes. Une perturbation synthétique d’une variable sert à étudier la colinéarité ; aucune graine aléatoire n’étant fixée, cette expérience peut varier d’une exécution à l’autre.
+The collinearity experiment uses `2*T_H2O + 6 + 0.1*randn(...)`. No random seed is set, so the added predictor varies across runs. In addition, each iteration replaces the response for the next fit with the preceding model’s predictions; the sequence is an illustration of coefficient evolution, not a set of independent repeated trials.
 
-## Results & learnings / Résultats et apprentissages
+**FR** — L’implémentation de l’ACP centre ses entrées, mais ne les met pas elle-même à l’échelle. Les trois représentations des entrées sont donc comparées, car les directions principales dépendent de l’échelle des variables. La matrice de régression LSE comprend une colonne constante ; l’ACP centre cette colonne, qui devient nulle, et n’estime pas d’ordonnée à l’origine distincte. Cette différence doit être prise en compte lors de l’interprétation des comparaisons.
 
-**EN**
+L’expérience de colinéarité utilise `2*T_H2O + 6 + 0.1*randn(...)`. Aucune graine aléatoire n’est fixée : la variable ajoutée peut donc changer d’une exécution à l’autre. De plus, à chaque itération, la sortie utilisée à l’ajustement suivant est remplacée par les prédictions du modèle précédent. Cette séquence illustre l’évolution des coefficients ; elle ne constitue pas une série d’essais indépendants.
 
-- The repository includes plots comparing fitted curves and errors for LSE and PCA-based models, as well as plots of parameter evolution in the collinearity experiment.
-- The comparisons make the influence of scaling and correlated inputs inspectable; the repository does not report a consolidated quantitative benchmark showing that one method is consistently more accurate.
-- The analysis is limited to 21 observations. Cross-validation is implemented in the script, but the checked-in figures are not a substitute for a reproducible, aggregated evaluation; the collinearity experiment is stochastic.
+## Results and limitations / Résultats et limites
 
-**FR**
+**EN** — The checked-in figures show fitted curves and errors for the scaling comparisons, as well as coefficient-evolution plots for the collinearity experiment. They help inspect how the implementation responds to scaling and correlated inputs; they do not establish that one method is consistently more accurate. The plotted curves use spline interpolation between the 21 observations for visualization, not additional measurements.
 
-- Le dépôt contient des graphiques comparant les courbes ajustées et les erreurs des modèles LSE et fondés sur l’ACP, ainsi que l’évolution des paramètres dans l’expérience de colinéarité.
-- Ces comparaisons permettent d’observer l’effet de l’échelle et des variables corrélées ; le dépôt ne fournit pas de benchmark quantitatif consolidé démontrant qu’une méthode est systématiquement plus précise.
-- L’analyse porte sur 21 observations. La validation croisée est implémentée, mais les figures versionnées ne remplacent pas une évaluation agrégée et reproductible ; l’expérience de colinéarité comporte une part aléatoire.
+Although a 7-fold loop is present, its test-fold errors are used to select the stored parameter vectors, and its residuals are combined recursively rather than reported as a standard aggregate cross-validation score. It should therefore not be treated as an unbiased quantitative comparison. The dataset has only 21 observations, and its provenance is not documented in the repository. A more reliable comparison would require a clearly defined evaluation procedure and results aggregated without selecting models on their test folds.
 
-## Getting started
+**FR** — Les figures versionnées montrent les ajustements et les erreurs des comparaisons de mise à l’échelle, ainsi que l’évolution des coefficients dans l’expérience de colinéarité. Elles permettent d’examiner le comportement de l’implémentation face à l’échelle et aux entrées corrélées, mais ne démontrent pas qu’une méthode est systématiquement plus précise. Les courbes tracées utilisent une interpolation spline entre les 21 observations à des fins de visualisation ; elles ne représentent pas de nouvelles mesures.
 
-### Requirements
+Bien qu’une boucle en 7 plis soit présente, les erreurs sur les plis de test servent à sélectionner les vecteurs de paramètres conservés et les résidus sont agrégés récursivement, plutôt que présentés sous la forme d’un score standard de validation croisée. Il ne faut donc pas interpréter ce calcul comme une comparaison quantitative non biaisée. Le jeu de données ne contient que 21 observations et sa provenance n’est pas documentée dans le dépôt. Une comparaison plus fiable demanderait une procédure d’évaluation définie et une agrégation des résultats qui ne sélectionne pas les modèles sur leurs plis de test.
 
-- MATLAB R2024a or later (the main script defines local functions before its script statements).
-- Statistics and Machine Learning Toolbox (`cvpartition` is used for 7-fold cross-validation).
+## Getting started / Démarrage
 
-### Run
-
-Open MATLAB in the repository directory, where `VAJA3.mat` is located, then run:
+**EN** — The main script uses local functions before its script statements, so it requires MATLAB R2024a or later. It also uses `cvpartition` for the 7-fold loop, which requires Statistics and Machine Learning Toolbox. With `VAJA3.mat` in the repository directory, run:
 
 ```matlab
 run("assignement3.m")
 ```
 
-The script loads the dataset, runs the comparisons and opens figures. The repository also includes `kqzd.m`, a separate synthetic linear least-squares curve-fitting example:
+The script loads the dataset and opens figures. `kqzd.m` is a separate synthetic straight-line least-squares example; run it independently with:
 
 ```matlab
 run("kqzd.m")
 ```
 
-No additional configuration or package installation is required.
+**FR** — Le script principal déclare des fonctions locales avant ses instructions de script ; il nécessite donc MATLAB R2024a ou une version ultérieure. Il utilise aussi `cvpartition` pour la boucle en 7 plis, ce qui nécessite Statistics and Machine Learning Toolbox. Depuis le répertoire du dépôt, où se trouve `VAJA3.mat`, lancer :
+
+```matlab
+run("assignement3.m")
+```
+
+Le script charge les données et ouvre des figures. `kqzd.m` est un exemple indépendant de régression par moindres carrés sur une droite synthétique ; il s’exécute séparément avec :
+
+```matlab
+run("kqzd.m")
+```
+
+## Repository structure / Structure du dépôt
+
+| Path | Purpose |
+| --- | --- |
+| `assignement3.m` | Main data analysis, LSE/PCA/PCR routines, scaling comparisons and plots |
+| `VAJA3.mat` | Dataset containing the 21 observations |
+| `kqzd.m` | Independent synthetic least-squares curve-fitting example |
+| `medias/` | Checked-in plots for model fits, errors and coefficient comparisons |

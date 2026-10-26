@@ -4,7 +4,7 @@
 
 🇫🇷 **FR** - Cette étude MATLAB estime la sortie du procédé `I_EFF` à partir de 21 observations de trois variables (`A_FLOW`, `T_H2O` et `C_ACID`). Elle compare la régression par moindres carrés à des régressions utilisant des composantes principales et examine l’effet de la mise à l’échelle et de la colinéarité sur les ajustements et les coefficients.
 
-[← Back to portfolio](https://github.com/mlmdc) · [Contents / Sommaire](#contents--sommaire)
+[← Back to portfolio](https://mlmdc.github.io/mlmdc_portfolio/) · [Contents / Sommaire](#contents--sommaire)
 
 ![Prediction errors for least-squares and PCA-based regression with standardized inputs](medias/LSE_PCA_err_std.png)
 
